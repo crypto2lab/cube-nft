@@ -48,6 +48,9 @@ pub use sp_runtime::{Perbill, Permill};
 /// Import the template pallet.
 pub use pallet_template;
 
+// Import the card pallet.
+pub use pallet_cards;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -258,15 +261,73 @@ impl pallet_transaction_payment::Config for Runtime {
 	type FeeMultiplierUpdate = ConstFeeMultiplier<FeeMultiplier>;
 }
 
-impl pallet_sudo::Config for Runtime {
+parameter_types! {
+	pub const DepositBase: u64 = 50;
+	pub const DepoistBasePerByte: u64 = 1;
+	pub const DepositBaseU32: u32 = 50;
+}
+
+impl pallet_uniques::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type RuntimeCall = RuntimeCall;
+	type CollectionId = u32;
+	type ItemId = u32;
+	type Currency = Balances;
+	type CreateOrigin =
+		frame_support::traits::AsEnsureOriginWithArg<frame_system::EnsureSigned<AccountId>>;
+	type ForceOrigin = frame_system::EnsureSigned<AccountId>;
+	type Locker = ();
+	type WeightInfo = pallet_uniques::weights::SubstrateWeight<Runtime>;
+
+	type CollectionDeposit = DepositBase;
+	type ItemDeposit = DepositBase;
+	type MetadataDepositBase = DepositBase;
+	type AttributeDepositBase = DepositBase;
+	type DepositPerByte = DepoistBasePerByte;
+	type StringLimit = DepositBaseU32;
+	type KeyLimit = DepositBaseU32;
+	type ValueLimit = DepositBaseU32;
+
+	#[cfg(feature = "runtime-benchmarks")]
+	type Helper = ();
 }
 
 /// Configure the pallet-template in pallets/template.
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
+
+impl pallet_cards::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	// type CollectionId = u32;
+	// type ItemId = u32;
+	// type Currency = Balances;
+	// type CreateOrigin =
+	// 	frame_support::traits::AsEnsureOriginWithArg<frame_system::EnsureSigned<AccountId>>;
+	// type ForceOrigin = frame_system::EnsureSigned<AccountId>;
+	// type Locker = ();
+	// type WeightInfo = pallet_uniques::weights::SubstrateWeight<Runtime>;
+
+	// type CollectionDeposit = DepositBase;
+	// type ItemDeposit = DepositBase;
+	// type MetadataDepositBase = DepositBase;
+	// type AttributeDepositBase = DepositBase;
+	// type DepositPerByte = DepoistBasePerByte;
+	// type StringLimit = DepositBaseU32;
+	// type KeyLimit = DepositBaseU32;
+	// type ValueLimit = DepositBaseU32;
+
+	// #[cfg(feature = "runtime-benchmarks")]
+	// type Helper = ();
+}
+
+impl pallet_sudo::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type RuntimeCall = RuntimeCall;
+}
+// Configure the pallet-card in pallets/card.
+// impl pallet_card::Config for Runtime {
+// 	type RuntimeEvent = RuntimeEvent;
+// }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
@@ -281,10 +342,12 @@ construct_runtime!(
 		Aura: pallet_aura,
 		Grandpa: pallet_grandpa,
 		Balances: pallet_balances,
+		Uniques: pallet_uniques,
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template,
+		Cards: pallet_cards,
 	}
 );
 
