@@ -82,16 +82,6 @@ pub mod pallet {
 					creator: owner.clone(),
 					owner: owner.clone(),
 				},
-			)?;
-
-			pallet_uniques::Pallet::do_create_collection(
-				collosus_collection_id,
-				owner.clone(),
-				owner.clone(),
-				T::CollectionDeposit::get(),
-				false,
-				<pallet_uniques::Event<T, I>>::Created { collection: collosus_collection_id, creator: owner.clone(), owner: owner },
-				//<<T as pallet_uniques::Config<I>::Event>::Created { collection, creator: owner, owner: admin },
 			)
 		}
 
